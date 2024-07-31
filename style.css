@@ -1,0 +1,64 @@
+
+* {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+body {
+    color: black;
+    background-color: beige;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+main {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+table {
+
+}
+
+td {
+    border: 2px solid #000000;
+    padding: 0px;
+    text-align: center;
+    flex-basis: 0px;
+    container-type: size;
+    position: relative;
+    background-color: yellow;
+    border-radius: 10%;
+}
+
+td div {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+td p {
+}
+
+.empty-tile {
+    border: 2px solid #00000000;
+    background-color: #00000000;
+}
+
+.utility-tile {
+    background-color: gray;
+}
