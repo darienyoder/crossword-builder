@@ -4,8 +4,16 @@ const CAP = "#";
 const WHISKER = "/";
 const EMPTY_SPACES = ["", EDGE, WHISKER, CAP];
 
+const LETTER = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
 var table = {};
 var tableElement;
+var letterFrequency = [];
+
+var minX = 0;
+var maxY = 0;
+var minY = 0;
+var maxX = 0;
 
 function main()
 {
@@ -68,6 +76,13 @@ function setTile(x, y, char)
 {
     // table[x.toString() + ", " + y.toString()] = char;
     table[x.toString() + ", " + y.toString()] = char;
+    if (!EMPTY_SPACES.includes(char))
+    {
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+    }
 }
 
 function getTile(x, y)
@@ -318,6 +333,65 @@ function printWord(x, y, word, down = false)
 
 function createCrossword(wordList, maxSizeX, maxSizeY)
 {
+
+    for (var i = 0; i < 26; i++)
+    {
+        letterFrequency[i] = 0;
+    }
+    for (word in wordList)
+    {
+        wordList[word] = wordList[word].toUpperCase();
+        for (letter of wordList[word])
+        {
+            letterFrequency[LETTER.indexOf(letter)] += 1;
+        }
+    }
+
+    let frequencyOrder = [];
+    for (var i = 25; i > -1; i--)
+    {
+        let maxFrequency = Math.max(...letterFrequency);
+        frequencyOrder[i] = LETTER[letterFrequency.indexOf(maxFrequency)];
+    }
+
+    let wordScore = {};
+    for (word in wordList)
+    {
+        wordScore[wordList[word]] = 0;
+        for (letter of wordList[word])
+        {
+            let rarity = frequencyOrder.indexOf(letter);
+            if (rarity < 3)
+            {
+                wordScore[wordList[word]] += 6;
+            }
+            else if (rarity < 6)
+            {
+                wordScore[wordList[word]] += 5;
+            }
+            else if (rarity < 10)
+            {
+                wordScore[wordList[word]] += 4;
+            }
+            else if (rarity < 14)
+            {
+                wordScore[wordList[word]] += 3;
+            }
+            else if (rarity < 18)
+            {
+                wordScore[wordList[word]] += 2;
+            }
+            else if (rarity < 22)
+            {
+                wordScore[wordList[word]] += 1;
+            }
+            else
+            {
+                // wordScore[wordList[word]] += 0;
+            }
+        }
+    }
+
     let words;
     let wordCount;
 
@@ -327,18 +401,30 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
         wordCount = 0;
 
         table = {};
+        minX = 0;
+        maxY = 0;
+        minY = 0;
+        maxX = 0;
 
-        words.sort(function(){return 0.5 - Math.random()});
+        words.sort(function(a, b){return wordScore[a] * (0.9 + Math.random() * 0.1) - wordScore[b] * (0.9 + Math.random() * 0.1) });
 
         printWord(0, 0, words.pop());
         wordCount += 1;
 
         let attempts = 0;
 
+
         while (words.length > 0 && attempts < 10000)
         {
             let word = words[words.length - 1];
             let found = false;
+
+            let sortedLetters = new Array(word.length);
+            for (var i = 0; i < sortedLetters.length; i++)
+            {
+                sortedLetters[i] = i;
+            }
+            sortedLetters.sort(function(a, b){return frequencyOrder.indexOf(word[b] + Math.random() * 5) - frequencyOrder.indexOf(word[a]) + Math.random() * 5 });
 
             for (var letterIndex = 0; letterIndex < word.length; letterIndex++)
             {
@@ -348,21 +434,21 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
 
                 for (rootLetterIndex of tableKeys)
                 {
-                    if (table[rootLetterIndex] == word[letterIndex])
+                    if (table[rootLetterIndex] == word[sortedLetters[letterIndex]])
                     {
                         let rootX = parseInt(rootLetterIndex.split(", ")[0]);
                         let rootY = parseInt(rootLetterIndex.split(", ")[1]);
 
-                        if (wordFits(rootX - letterIndex, rootY, word, false))
+                        if (wordFits(rootX - sortedLetters[letterIndex], rootY, word, false))
                         {
-                            printWord(rootX - letterIndex, rootY, words.pop(), false)
+                            printWord(rootX - sortedLetters[letterIndex], rootY, words.pop(), false)
                             found = true;
                             wordCount += 1;
                             break;
                         }
-                        if (wordFits(rootX, rootY - letterIndex, word, true))
+                        if (wordFits(rootX, rootY - sortedLetters[letterIndex], word, true))
                         {
-                            printWord(rootX, rootY - letterIndex, words.pop(), true)
+                            printWord(rootX, rootY - sortedLetters[letterIndex], words.pop(), true)
                             found = true;
                             wordCount += 1;
                             break;
@@ -379,7 +465,7 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
                 attempts += 1;
             }
         }
-        if (wordCount >= wordList.length * 0.25)
+        if (wordCount >= wordList.length * 1.0 && (maxSizeX == 0 || maxX - minX + 1 <= maxSizeX) && (maxSizeY == 0 || maxY - minY + 1 <= maxSizeY))
         {
             break;
         }
@@ -387,26 +473,26 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
 
     if (words.length != 0)
     {
-        // alert("Couldn't fit " + words)
+        alert("Couldn't fit " + words)
     }
 
-    let minX = 0;
-    let maxY = 0;
-    let minY = 0;
-    let maxX = 0;
-
-    for (letterIndex of Object.keys(table))
-    {
-        if (true || ![EDGE, WHISKER, CAP].includes(table[letterIndex]))
-        {
-            let letterX = letterIndex.split(", ")[0];
-            let letterY = letterIndex.split(", ")[1];
-            minX = Math.min(minX, letterX);
-            maxX = Math.max(maxX, letterX);
-            minY = Math.min(minY, letterY);
-            maxY = Math.max(maxY, letterY);
-        }
-    }
+    // let minX = 0;
+    // let maxY = 0;
+    // let minY = 0;
+    // let maxX = 0;
+    //
+    // for (letterIndex of Object.keys(table))
+    // {
+    //     if (true || ![EDGE, WHISKER, CAP].includes(table[letterIndex]))
+    //     {
+    //         let letterX = letterIndex.split(", ")[0];
+    //         let letterY = letterIndex.split(", ")[1];
+    //         minX = Math.min(minX, letterX);
+    //         maxX = Math.max(maxX, letterX);
+    //         minY = Math.min(minY, letterY);
+    //         maxY = Math.max(maxY, letterY);
+    //     }
+    // }
 
     printTable(maxX - minX + 1, maxY - minY + 1, minX, minY);
 }
