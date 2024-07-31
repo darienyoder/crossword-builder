@@ -60,5 +60,11 @@ td p {
 }
 
 .utility-tile {
-    background-color: gray;
+    border: 2px solid #00000000;
+    background-color: #00000000;
+    /*background-color: gray;*/
+}
+
+.utility-tile div {
+    display: none;
 }

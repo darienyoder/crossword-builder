@@ -89,10 +89,39 @@ function setTileVisual(x, y, char)
     tableElement.children[y].children[x].innerHTML = "<p>" + char + "</p>";
 }
 
+function countAdjacentTiles(x, y)
+{
+    let count = 0;
+    if (!EMPTY_SPACES.includes(getTile(x + 1, y)))
+    {
+        count++;
+    }
+    if (!EMPTY_SPACES.includes(getTile(x - 1, y)))
+    {
+        count++;
+    }
+    if (!EMPTY_SPACES.includes(getTile(x, y + 1)))
+    {
+        count++;
+    }
+    if (!EMPTY_SPACES.includes(getTile(x, y - 1)))
+    {
+        count++;
+    }
+    return count;
+}
+
 function wordFits(x, y, word, down = false)
 {
+
+    if (countAdjacentTiles(x, y) > 1)
+    {
+        return false;
+    }
+
     let tile;
     let touchingEdge = false;
+    let passing = false;
 
     for (var i = 0; i < word.length; i++)
     {
@@ -126,25 +155,46 @@ function wordFits(x, y, word, down = false)
             }
             if (touchingEdge)
             {
-                return false;
+                if (!passing || countAdjacentTiles(x + i * (1-down), y + i * +down) > 1)
+                {
+                    return false;
+                }
             }
             touchingEdge = true;
+            passing = true;
         }
         else if (tile == EDGE)
         {
             if (touchingEdge)
             {
-                return false;
+                if (!passing || countAdjacentTiles(x + i * (1-down), y + i * +down) > 1)
+                {
+                    return false;
+                }
             }
             touchingEdge = true;
+            passing = false;
         }
-        else if (!["", word[i]].includes(tile))
+        else if (tile == word[i])
         {
-            return false;
+            if (touchingEdge)
+            {
+                if (passing && countAdjacentTiles(x + i * (1-down), y + i * +down) > 1)
+                {
+                    return false;
+                }
+            }
+            touchingEdge = true;
+            passing = true;
+        }
+        else if (tile == "")
+        {
+            touchingEdge = false;
+            passing = false;
         }
         else
         {
-            touchingEdge = false;
+            return false;
         }
     }
 
@@ -178,9 +228,17 @@ function printWord(x, y, word, down = false)
                 {
                     setTile(x + 1, y + i, WHISKER);
                 }
+                else if (EMPTY_SPACES.includes(getTile(x + 1, y + i)))
+                {
+                    setTile(x + 1, y + i, CAP);
+                }
                 if (getTile(x - 1, y + i) == "")
                 {
                     setTile(x - 1, y + i, WHISKER);
+                }
+                else if (EMPTY_SPACES.includes(getTile(x - 1, y + i)))
+                {
+                    setTile(x - 1, y + i, CAP);
                 }
             }
             else
@@ -189,9 +247,17 @@ function printWord(x, y, word, down = false)
                 {
                     setTile(x + 1, y + i, EDGE);
                 }
+                else if (EMPTY_SPACES.includes(getTile(x + 1, y + i)))
+                {
+                    setTile(x + 1, y + i, CAP);
+                }
                 if (getTile(x - 1, y + i) == "")
                 {
                     setTile(x - 1, y + i, EDGE);
+                }
+                else if (EMPTY_SPACES.includes(getTile(x - 1, y + i)))
+                {
+                    setTile(x - 1, y + i, CAP);
                 }
             }
         }
@@ -204,9 +270,17 @@ function printWord(x, y, word, down = false)
                 {
                     setTile(x + i, y + 1, WHISKER);
                 }
+                else if (getTile(x + i, y + 1) == WHISKER)//(EMPTY_SPACES.includes(getTile(x + i, y + 1)))
+                {
+                    setTile(x + i, y + 1, CAP);
+                }
                 if (getTile(x + i, y - 1) == "")
                 {
                     setTile(x + i, y - 1, WHISKER);
+                }
+                else if (getTile(x + i, y + 1) == WHISKER)//(EMPTY_SPACES.includes(getTile(x + i, y + 1)))
+                {
+                    setTile(x + i, y - 1, CAP);
                 }
             }
             else
@@ -215,10 +289,18 @@ function printWord(x, y, word, down = false)
                 {
                     setTile(x + i, y + 1, EDGE);
                 }
+                // else if (EMPTY_SPACES.includes(getTile(x + i, y + 1)))
+                // {
+                //     setTile(x + i, y + 1, CAP);
+                // }
                 if (getTile(x + i, y - 1) == "")
                 {
                     setTile(x + i, y - 1, EDGE);
                 }
+                // else if (EMPTY_SPACES.includes(getTile(x + i, y - 1)))
+                // {
+                //     setTile(x + i, y - 1, CAP);
+                // }
             }
         }
     }
@@ -234,63 +316,78 @@ function printWord(x, y, word, down = false)
     }
 }
 
-function createCrossword(words, maxSizeX, maxSizeY)
+function createCrossword(wordList, maxSizeX, maxSizeY)
 {
+    let words;
+    let wordCount;
 
-    table = {};
-
-    words.sort(function(){return 0.5 - Math.random()});
-
-    printWord(0, 0, words.pop());
-
-    let attempts = 0;
-
-    while (words.length > 0 && attempts < 10000)
+    while (true)
     {
-        let word = words[words.length - 1];
-        let found = false;
+        words = wordList.slice(0);
+        wordCount = 0;
 
-        for (var letterIndex = 0; letterIndex < word.length; letterIndex++)
+        table = {};
+
+        words.sort(function(){return 0.5 - Math.random()});
+
+        printWord(0, 0, words.pop());
+        wordCount += 1;
+
+        let attempts = 0;
+
+        while (words.length > 0 && attempts < 10000)
         {
+            let word = words[words.length - 1];
+            let found = false;
 
-            let tableKeys = Object.keys(table);
-            tableKeys.sort(function(){return 0.5 - Math.random()});
-
-            for (rootLetterIndex of tableKeys)
+            for (var letterIndex = 0; letterIndex < word.length; letterIndex++)
             {
-                if (table[rootLetterIndex] == word[letterIndex])
-                {
-                    let rootX = parseInt(rootLetterIndex.split(", ")[0]);
-                    let rootY = parseInt(rootLetterIndex.split(", ")[1]);
 
-                    if (wordFits(rootX - letterIndex, rootY, word, false))
+                let tableKeys = Object.keys(table);
+                tableKeys.sort(function(){return 0.5 - Math.random()});
+
+                for (rootLetterIndex of tableKeys)
+                {
+                    if (table[rootLetterIndex] == word[letterIndex])
                     {
-                        printWord(rootX - letterIndex, rootY, words.pop(), false)
-                        found = true;
-                        break;
-                    }
-                    if (wordFits(rootX, rootY - letterIndex, word, true))
-                    {
-                        printWord(rootX, rootY - letterIndex, words.pop(), true)
-                        found = true;
-                        break;
+                        let rootX = parseInt(rootLetterIndex.split(", ")[0]);
+                        let rootY = parseInt(rootLetterIndex.split(", ")[1]);
+
+                        if (wordFits(rootX - letterIndex, rootY, word, false))
+                        {
+                            printWord(rootX - letterIndex, rootY, words.pop(), false)
+                            found = true;
+                            wordCount += 1;
+                            break;
+                        }
+                        if (wordFits(rootX, rootY - letterIndex, word, true))
+                        {
+                            printWord(rootX, rootY - letterIndex, words.pop(), true)
+                            found = true;
+                            wordCount += 1;
+                            break;
+                        }
                     }
                 }
+                if (found)
+                {
+                    break;
+                }
             }
-            if (found)
+            if (!found)
             {
-                break;
+                attempts += 1;
             }
         }
-        if (!found)
+        if (wordCount >= wordList.length * 0.25)
         {
-            attempts += 1;
+            break;
         }
     }
 
     if (words.length != 0)
     {
-        alert("Couldn't fit " + words)
+        // alert("Couldn't fit " + words)
     }
 
     let minX = 0;
