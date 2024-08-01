@@ -19,7 +19,9 @@ function main()
 {
     tableElement = document.getElementById("table");
 
-    createCrossword(["Yoder Family", "Vernon", "Darien", "Traci", "Phillip", "Levi", "Rilen", "Danny", "Zoey", "Patricia", "Chrissy", "Scott", "Mark", "Katie", "Eric", "Kent"], 15, 15)
+    let names = ["Yoder Family", "Vernon", "Darien", "Traci", "Phillip", "Levi", "Rilen", "Danny", "Zoey", "Patricia", "Chrissy", "Scott", "Mark", "Katie", "Eric", "Kent", "Brandt", "Sadie", "Andi", "Frankie", "Cori"];
+
+    createCrossword(names, 20, 20);
 }
 
 function printTable(sizeX, sizeY, originX, originY)
@@ -414,7 +416,7 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
         let attempts = 0;
 
 
-        while (words.length > 0 && attempts < 10000)
+        while (words.length > 0 && attempts < words.length)
         {
             let word = words[words.length - 1];
             let found = false;
@@ -463,6 +465,11 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
             if (!found)
             {
                 attempts += 1;
+                words.splice(0, 0, words.pop());
+            }
+            else
+            {
+                attemps = 0;
             }
         }
         if (wordCount >= wordList.length * 1.0 && (maxSizeX == 0 || maxX - minX + 1 <= maxSizeX) && (maxSizeY == 0 || maxY - minY + 1 <= maxSizeY))
