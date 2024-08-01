@@ -107,4 +107,25 @@ td p {
     #crossword-wrapper {
         min-height: 50%;
     }
+
+    #controls h1 {
+        font-size: 7vw;
+    }
+
+    #word-list input {
+        font-size: 7vw;
+        padding-left: 2vw;
+        border-width: 0.8vw;
+        border-radius: 1vw;
+        width: calc(100% - 4vw);
+        margin-bottom: 1vw;
+    }
+
+    #generate {
+        font-size: 5vw;
+        margin: 10px 10vw;
+        border-width: 0.8vw;
+        border-radius: 1vw;
+        width: calc(100% - 20vw);
+    }
 }
