@@ -430,7 +430,7 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
 
         words.sort(function(a, b){return wordScore[a] * (0.9 + Math.random() * 0.1) - wordScore[b] * (0.9 + Math.random() * 0.1) });
 
-        printWord(0, 0, words.pop());
+        printWord(0, 0, words.pop(), (Math.random() > 0.5));
         wordCount += 1;
 
         let attempts = 0;
