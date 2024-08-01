@@ -12,17 +12,21 @@ body {
     bottom: 0px;
     left: 0px;
     right: 0px;
+    display: flex;
+    flex-direction: row;
 }
 
-main {
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
+#crossword-wrapper {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 20px;
+}
+
+#controls {
+    background-color: #e2d0a3;
+    padding: 10px;
 }
 
 table {
@@ -67,4 +71,40 @@ td p {
 
 .utility-tile div {
     display: none;
+}
+
+#controls h1 {
+    margin-bottom: 10px;
+}
+
+#word-list input {
+    display: block;
+    width: calc(100% - 15px);
+    margin-bottom: 5px;
+    padding: 5px;
+    font-size: 20px;
+    border: 4px solid #804000;
+    border-radius: 5px;
+    background-color: white;
+}
+
+#generate {
+    margin: 10px;
+    padding: 5px;
+    width: calc(100% - 20px);
+    font-size: 30px;
+    border: 2px solid black;
+    border-radius: 10px;
+    background-color: yellow;
+    cursor: pointer;
+}
+
+@media only screen and (max-aspect-ratio: 1/1) {
+    body {
+        flex-direction: column;
+    }
+
+    #crossword-wrapper {
+        min-height: 50%;
+    }
 }

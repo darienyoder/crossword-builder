@@ -19,9 +19,32 @@ function main()
 {
     tableElement = document.getElementById("table");
 
-    let names = ["Yoder Family", "Vernon", "Darien", "Traci", "Phillip", "Levi", "Rilen", "Danny", "Zoey", "Patricia", "Chrissy", "Scott", "Mark", "Katie", "Eric", "Kent", "Brandt", "Sadie", "Andi", "Frankie", "Cori"];
+    generate();
 
-    createCrossword(names, 20, 20);
+    setInterval(update, 100);
+}
+
+function update()
+{
+    let inputs = document.getElementById("word-list").children;
+    if (inputs[inputs.length - 1].value != "")
+    {
+        let newInput = document.createElement("input");
+        newInput.placeholder = "Add a word";
+        document.getElementById("word-list").appendChild(newInput);
+    }
+    else if (inputs.length > 1 && inputs[inputs.length - 2].value == "")
+    {
+        inputs[inputs.length - 1].remove();
+    }
+
+    // for (var i = inputs.length - 1; i > -1; i--)
+    // {
+    //     if (inputs[i].value)
+    //     {
+    //
+    //     }
+    // }
 }
 
 function printTable(sizeX, sizeY, originX, originY)
@@ -35,11 +58,6 @@ function printTable(sizeX, sizeY, originX, originY)
         {
             let square = document.createElement("td");
             square.innerHTML = "<div><p>" + getTile(x + originX, y + originY).toUpperCase() + "</p></div>";
-
-            // if (square.innerText == "")
-            // {
-            //     square.innerText = (x + originX).toString();
-            // }
 
             if (getTile(x + originX, y + originY) == "")
             {
@@ -60,15 +78,17 @@ function printTable(sizeX, sizeY, originX, originY)
         }
         tableElement.appendChild(row);
     }
-    if (sizeX / sizeY >= document.getElementsByTagName("main")[0].offsetWidth / document.getElementsByTagName("main")[0].offsetHeight)
+    if (sizeX / sizeY >= document.getElementById("crossword-wrapper").offsetWidth / document.getElementById("crossword-wrapper").offsetHeight)
     {
         tableElement.style.width = "100%";
+        tableElement.style.height = "";
         // table.style.height = (sizeY / sizeX * document.getElementsByTagName("main")[0].offsetWidth / document.getElementsByTagName("main")[0].offsetHeight * 100).toString() + "%";
     }
     else
     {
         // table.style.width = (sizeX / sizeY * document.getElementsByTagName("main")[0].offsetWidth / document.getElementsByTagName("main")[0].offsetHeight * 100).toString() + "%";
         tableElement.style.height = "100%";
+        tableElement.style.width = "";
     }
     tableElement.style.aspectRatio = (sizeX / sizeY).toString();
     document.getElementById("table-style").innerHTML = "td { font-size: " + (tableElement.offsetHeight / sizeY * 0.9).toString() + "px;} table { border-spacing: " + (tableElement.offsetHeight / sizeY / 25).toString() + "px;}"
@@ -502,4 +522,17 @@ function createCrossword(wordList, maxSizeX, maxSizeY)
     // }
 
     printTable(maxX - minX + 1, maxY - minY + 1, minX, minY);
+}
+
+function generate()
+{
+    let inputList = [];
+    for (input of document.getElementById("word-list").children)
+    {
+        if (input.value != "")
+        {
+            inputList.push(input.value);
+        }
+    }
+    createCrossword(inputList, 0, 0);
 }

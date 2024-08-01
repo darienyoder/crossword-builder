@@ -8,10 +8,18 @@
         <style id="table-style"></style>
     </head>
     <body onload="main();">
-        <main>
-            <table id="table">
-
-            </table>
-        </main>
+        <div id="crossword-wrapper">
+            <table id="table"></table>
+        </div>
+        <div id="controls">
+            <h1>Crossword Builder</h1>
+            <div id="word-list">
+                <input placeholder="Add a word" value="Darien's">
+                <input placeholder="Add a word" value="Crossword">
+                <input placeholder="Add a word" value="Builder">
+                <input placeholder="Add a word">
+            </div>
+            <button id="generate" onclick="generate();">Generate</button>
+        </div>
     </body>
 </html>
